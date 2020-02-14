@@ -493,6 +493,23 @@ bool ParseIp(uint32_t* addr, const char* str)
   return (3 == i);
 }
 
+bool ParseMac(uint8_t* addr, const char* str)
+{
+  uint8_t *part = (uint8_t*)addr;
+  uint8_t i;
+
+  *addr = 0;
+  for (i = 0; i < 6; i++) {
+    part[i] = strtoul(str, nullptr, 16);        // Convert byte
+    str = strchr(str, ':');
+    if (str == nullptr || *str == '\0') {
+      break;  // No more separators, exit
+    }
+    str++;                                   // Point to next character after separator
+  }
+  return (5 == i);
+}
+
 uint32_t ParseParameters(uint32_t count, uint32_t *params)
 {
   char *p;
