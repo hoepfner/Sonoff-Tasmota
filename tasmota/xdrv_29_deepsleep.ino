@@ -36,7 +36,8 @@
 const uint32_t DEEPSLEEP_MAX = 10 * 366 * 24 * 60 * 60;  // Allow max 10 years sleep
 const uint32_t DEEPSLEEP_MAX_CYCLE = 60 * 60;            // Maximum time for a deepsleep as defined by chip hardware
 const uint32_t DEEPSLEEP_MIN_TIME = 5;                   // Allow 5 seconds skew
-const uint32_t DEEPSLEEP_START_COUNTDOWN = 4;            // Allow 4 seconds to update web console before deepsleep
+//const uint32_t DEEPSLEEP_START_COUNTDOWN = 4;            // Allow 4 seconds to update web console before deepsleep
+const uint32_t DEEPSLEEP_START_COUNTDOWN = 1;            // Allow 1 seconds to update web console before deepsleep
 
 const char kDeepsleepCommands[] PROGMEM = D_PRFX_DEEPSLEEP "|"
   D_CMND_DEEPSLEEP_TIME ;
