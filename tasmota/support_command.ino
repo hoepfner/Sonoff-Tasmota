@@ -24,7 +24,7 @@ const char kTasmotaCommands[] PROGMEM = "|"  // No prefix
   D_CMND_VOLTAGE_RESOLUTION "|" D_CMND_FREQUENCY_RESOLUTION "|" D_CMND_CURRENT_RESOLUTION "|" D_CMND_ENERGY_RESOLUTION "|" D_CMND_WEIGHT_RESOLUTION "|"
   D_CMND_MODULE "|" D_CMND_MODULES "|" D_CMND_GPIO "|" D_CMND_GPIOS "|" D_CMND_TEMPLATE "|" D_CMND_PWM "|" D_CMND_PWMFREQUENCY "|" D_CMND_PWMRANGE "|"
   D_CMND_BUTTONDEBOUNCE "|" D_CMND_SWITCHDEBOUNCE "|" D_CMND_SYSLOG "|" D_CMND_LOGHOST "|" D_CMND_LOGPORT "|" D_CMND_SERIALSEND "|" D_CMND_BAUDRATE "|" D_CMND_SERIALCONFIG "|"
-  D_CMND_SERIALDELIMITER "|" D_CMND_IPADDRESS "|" D_CMND_NTPSERVER "|" D_CMND_AP "|" D_CMND_SSID "|" D_CMND_PASSWORD "|" D_CMND_HOSTNAME "|" D_CMND_WIFICONFIG "|"
+  D_CMND_SERIALDELIMITER "|" D_CMND_IPADDRESS "|" D_CMND_NTPSERVER "|" D_CMND_AP "|" D_CMND_SSID "|" D_CMND_PASSWORD "|" D_CMND_BSSID "|" D_CMND_WIFI_CHANNEL "|" D_CMND_HOSTNAME "|" D_CMND_WIFICONFIG "|"
   D_CMND_FRIENDLYNAME "|" D_CMND_SWITCHMODE "|" D_CMND_INTERLOCK "|" D_CMND_TELEPERIOD "|" D_CMND_RESET "|" D_CMND_TIME "|" D_CMND_TIMEZONE "|" D_CMND_TIMESTD "|"
   D_CMND_TIMEDST "|" D_CMND_ALTITUDE "|" D_CMND_LEDPOWER "|" D_CMND_LEDSTATE "|" D_CMND_LEDMASK "|" D_CMND_WIFIPOWER "|" D_CMND_TEMPOFFSET "|"
 #ifdef USE_I2C
@@ -39,7 +39,7 @@ void (* const TasmotaCommand[])(void) PROGMEM = {
   &CmndVoltageResolution, &CmndFrequencyResolution, &CmndCurrentResolution, &CmndEnergyResolution, &CmndWeightResolution,
   &CmndModule, &CmndModules, &CmndGpio, &CmndGpios, &CmndTemplate, &CmndPwm, &CmndPwmfrequency, &CmndPwmrange,
   &CmndButtonDebounce, &CmndSwitchDebounce, &CmndSyslog, &CmndLoghost, &CmndLogport, &CmndSerialSend, &CmndBaudrate, &CmndSerialConfig,
-  &CmndSerialDelimiter, &CmndIpAddress, &CmndNtpServer, &CmndAp, &CmndSsid, &CmndPassword, &CmndHostname, &CmndWifiConfig,
+  &CmndSerialDelimiter, &CmndIpAddress, &CmndNtpServer, &CmndAp, &CmndSsid, &CmndPassword, &CmndBssid, &CmndWifiChannel, &CmndHostname, &CmndWifiConfig,
   &CmndFriendlyname, &CmndSwitchMode, &CmndInterlock, &CmndTeleperiod, &CmndReset, &CmndTime, &CmndTimezone, &CmndTimeStd,
   &CmndTimeDst, &CmndAltitude, &CmndLedPower, &CmndLedState, &CmndLedMask, &CmndWifiPower, &CmndTempOffset,
 #ifdef USE_I2C
@@ -1291,6 +1291,67 @@ void CmndPassword(void)
       ResponseCmndIdxChar(SettingsText(SET_STAPWD1 + XdrvMailbox.index -1));
     } else {
       Response_P(S_JSON_COMMAND_INDEX_ASTERISK, XdrvMailbox.command, XdrvMailbox.index);
+    }
+  }
+}
+
+void CmndBssid(void)
+{
+  uint8_t address[6];
+
+  if ((XdrvMailbox.index > 0) && (XdrvMailbox.index <= MAX_SSIDS)) {
+    if (!XdrvMailbox.usridx) {
+      //ResponseCmndAll(SET_STASSID1, MAX_SSIDS);
+    } else {
+      if (XdrvMailbox.data_len > 0) {
+        if (ParseMac(address, XdrvMailbox.data)) {
+        Settings.bssid[XdrvMailbox.index -1][0] = address[0];
+        Settings.bssid[XdrvMailbox.index -1][1] = address[1];
+        Settings.bssid[XdrvMailbox.index -1][2] = address[2];
+        Settings.bssid[XdrvMailbox.index -1][3] = address[3];
+        Settings.bssid[XdrvMailbox.index -1][4] = address[4];
+        Settings.bssid[XdrvMailbox.index -1][5] = address[5];
+    //        restart_flag = 2;
+        }
+        else {
+            // TODO: error message - invalid bssid
+        }
+      }
+
+    char stemp1[TOPSZ];
+    char hex_char [(6*3) + 2];
+    snprintf_P(stemp1, sizeof(stemp1), PSTR(" (%s)"), ToHex_P((unsigned char*)Settings.bssid[XdrvMailbox.index -1], 6, hex_char, sizeof(hex_char), ':'));
+    Response_P(S_JSON_COMMAND_INDEX_SVALUE_SVALUE, XdrvMailbox.command, XdrvMailbox.index, stemp1, stemp1);
+
+
+    }
+  }
+}
+
+void CmndWifiChannel(void)
+{
+  if ((XdrvMailbox.index > 0) && (XdrvMailbox.index <= MAX_SSIDS)) {
+    if (!XdrvMailbox.usridx) {
+   //   ResponseCmndAll(SET_STASSID1, MAX_SSIDS);
+    } else {
+      if (XdrvMailbox.data_len > 0) {
+        Settings.wch[XdrvMailbox.index -1] = TextToInt(XdrvMailbox.data);
+      }
+        /*
+      if (XdrvMailbox.data_len > 0) {
+          
+        SettingsUpdateText(SET_STASSID1 + XdrvMailbox.index -1,
+                (SC_CLEAR == Shortcut()) ? "" : (SC_DEFAULT == Shortcut()) ? (1 == XdrvMailbox.index) ? STA_SSID1 : STA_SSID2 : XdrvMailbox.data);
+        Settings.sta_active = XdrvMailbox.index -1;
+        restart_flag = 2;
+      }
+      ResponseCmndIdxChar(SettingsText(SET_STASSID1 + XdrvMailbox.index -1));
+      */
+ //     ResponseCmndNumber(Settings.wch[XdrvMailbox.index -1]);
+      char stemp1[TOPSZ];
+      snprintf_P(stemp1, sizeof(stemp1), PSTR(" (%d)"), Settings.wch[XdrvMailbox.index -1]);
+      //Response_P(S_JSON_COMMAND_INDEX_SVALUE_SVALUE, XdrvMailbox.command, XdrvMailbox.index, stemp1, TextToInt(XdrvMailbox.data));
+      Response_P(S_JSON_COMMAND_INDEX_SVALUE_SVALUE, XdrvMailbox.command, XdrvMailbox.index, stemp1, stemp1);
     }
   }
 }
