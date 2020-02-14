@@ -467,8 +467,8 @@ struct SYSCFG {
   uint8_t       hotplug_scan;              // F03
   uint8_t       reserved1;                 // F04 - reserved for s-hadinger
 
-  uint8_t       free_f05[207];             // F05
-  uint8_t       free_f05[197];             // F05 
+  //uint8_t       free_f05[207];             // F05
+  uint8_t       free_f05[193];             // F05 
   uint8_t       bssid[2][6];               // FC8
   uint8_t       wch[2];                    // FD2
   uint32_t      bootcount_reset_time;      // FD4
