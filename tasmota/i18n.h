@@ -261,6 +261,8 @@
 #define D_CMND_AP "Ap"
 #define D_CMND_SSID "SSId"
 #define D_CMND_PASSWORD "Password"
+#define D_CMND_BSSID "BSSID"
+#define D_CMND_WIFI_CHANNEL "WCH"
 #define D_CMND_HOSTNAME "Hostname"
 #define D_CMND_WIFICONFIG "WifiConfig"
   #define D_WCFG_0_RESTART "Restart"
