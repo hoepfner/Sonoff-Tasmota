@@ -215,7 +215,29 @@ void WifiBegin(uint8_t flag, uint8_t channel)
     char hex_char[18];
     snprintf_P(stemp, sizeof(stemp), PSTR(" Channel %d BSSId %s"), channel, ToHex_P((unsigned char*)Wifi.bssid, 6, hex_char, sizeof(hex_char), ':'));
   } else {
-    WiFi.begin(SettingsText(SET_STASSID1 + Settings.sta_active), SettingsText(SET_STAPWD1 + Settings.sta_active));
+      // try only once
+      if (Wifi.retry == Wifi.retry_init) {
+          if(Settings.wch[Settings.sta_active]) {
+            channel = Settings.wch[Settings.sta_active];
+            Wifi.bssid[0] = Settings.bssid[Settings.sta_active][0];
+            Wifi.bssid[1] = Settings.bssid[Settings.sta_active][1];
+            Wifi.bssid[2] = Settings.bssid[Settings.sta_active][2];
+            Wifi.bssid[3] = Settings.bssid[Settings.sta_active][3];
+            Wifi.bssid[4] = Settings.bssid[Settings.sta_active][4];
+            Wifi.bssid[5] = Settings.bssid[Settings.sta_active][5];
+
+            char hex_char[18];
+            snprintf_P(stemp, sizeof(stemp), PSTR(" MyChannel %d BSSId %s"), channel, ToHex_P((unsigned char*)Wifi.bssid, 6, hex_char, sizeof(hex_char), ':'));
+ 
+            WiFi.begin(SettingsText(SET_STASSID1 + Settings.sta_active), SettingsText(SET_STAPWD1 + Settings.sta_active), channel, Wifi.bssid);
+          }
+          else {
+             WiFi.begin(SettingsText(SET_STASSID1 + Settings.sta_active), SettingsText(SET_STAPWD1 + Settings.sta_active)); 
+          }         
+      }
+      else {
+         WiFi.begin(SettingsText(SET_STASSID1 + Settings.sta_active), SettingsText(SET_STAPWD1 + Settings.sta_active));
+      }
   }
   AddLog_P2(LOG_LEVEL_INFO, PSTR(D_LOG_WIFI D_CONNECTING_TO_AP "%d %s%s " D_IN_MODE " 11%c " D_AS " %s..."),
     Settings.sta_active +1, SettingsText(SET_STASSID1 + Settings.sta_active), stemp, kWifiPhyMode[WiFi.getPhyMode() & 0x3], my_hostname);
@@ -426,6 +448,10 @@ void WifiCheckIp(void)
 #endif  // LWIP_IPV6=1
     // initialize the last connect bssid since we had a successful connection
     memset((void*) &Wifi.bssid_last, 0, sizeof(Wifi.bssid_last));
+    // save the current bssid and channel to use it on restart.
+    uint8_t* bssid = WiFi.BSSID();                  // Get current bssid
+    memcpy((void*) &Settings.bssid[Settings.sta_active], (void*) bssid, sizeof(Settings.bssid[Settings.sta_active]));
+    Settings.wch[Settings.sta_active] =  WiFi.channel();   
     WifiSetState(1);
     Wifi.counter = WIFI_CHECK_SEC;
     Wifi.retry = Wifi.retry_init;
