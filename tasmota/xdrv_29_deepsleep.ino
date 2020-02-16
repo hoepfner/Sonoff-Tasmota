@@ -37,7 +37,7 @@ const uint32_t DEEPSLEEP_MAX = 10 * 366 * 24 * 60 * 60;  // Allow max 10 years s
 const uint32_t DEEPSLEEP_MAX_CYCLE = 60 * 60;            // Maximum time for a deepsleep as defined by chip hardware
 const uint32_t DEEPSLEEP_MIN_TIME = 5;                   // Allow 5 seconds skew
 //const uint32_t DEEPSLEEP_START_COUNTDOWN = 4;            // Allow 4 seconds to update web console before deepsleep
-const uint32_t DEEPSLEEP_START_COUNTDOWN = 1;            // Allow 1 seconds to update web console before deepsleep
+//const uint32_t DEEPSLEEP_START_COUNTDOWN = 1;            // Allow 1 seconds to update web console before deepsleep
 
 const char kDeepsleepCommands[] PROGMEM = D_PRFX_DEEPSLEEP "|"
   D_CMND_DEEPSLEEP_TIME ;
@@ -47,6 +47,7 @@ void (* const DeepsleepCommand[])(void) PROGMEM = {
 
 uint32_t deepsleep_sleeptime = 0;
 uint8_t deepsleep_flag = 0;
+uint8_t DEEPSLEEP_START_COUNTDOWN = 4;
 
 bool DeepSleepEnabled(void)
 {
@@ -65,6 +66,12 @@ bool DeepSleepEnabled(void)
 
 void DeepSleepReInit(void)
 {
+    if(Settings.flag4.fast_startup){
+        DEEPSLEEP_START_COUNTDOWN = 1;
+    }
+    else {
+        DEEPSLEEP_START_COUNTDOWN = 4;
+    }
   if ((ResetReason() == REASON_DEEP_SLEEP_AWAKE) && DeepSleepEnabled()) {
     if ((RtcSettings.ultradeepsleep > DEEPSLEEP_MAX_CYCLE) && (RtcSettings.ultradeepsleep < 1700000000)) {
       // Go back to sleep after 60 minutes if requested deepsleep has not been reached
