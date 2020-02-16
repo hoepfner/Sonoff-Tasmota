@@ -824,7 +824,7 @@ void Every100mSeconds(void)
       }
     }
   }
-  if(Settings.flag4.fast_startup){
+  if(Settings.flag4.fast_startup && global_state.wifi_down){
     WifiCheck(wifi_state_flag);
     wifi_state_flag = WIFI_RESTART;
     if (!global_state.wifi_down) { MqttCheck(); }
