@@ -824,6 +824,11 @@ void Every100mSeconds(void)
       }
     }
   }
+  if(Settings.flag4.fast_startup){
+    WifiCheck(wifi_state_flag);
+    wifi_state_flag = WIFI_RESTART;
+    if (!global_state.wifi_down) { MqttCheck(); }
+  }
 }
 
 /*-------------------------------------------------------------------------------------------*\
