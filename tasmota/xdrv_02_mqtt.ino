@@ -546,8 +546,12 @@ void MqttConnected(void)
     MqttPublishPrefixTopic_P(TELE, PSTR(D_RSLT_INFO "3"));
     MqttPublishAllPowerState();
     if (Settings.tele_period) {
-      //tele_period = Settings.tele_period -5;  // Enable TelePeriod in 5 seconds
-      tele_period = Settings.tele_period -1;  // Enable TelePeriod in 1 seconds
+      if(Settings.flag4.fast_startup){
+        tele_period = Settings.tele_period -1;  // Enable TelePeriod in 1 seconds
+      }
+      else {
+        tele_period = Settings.tele_period -5;  // Enable TelePeriod in 5 seconds
+      }
     }
     rules_flag.system_boot = 1;
     XdrvCall(FUNC_MQTT_INIT);
