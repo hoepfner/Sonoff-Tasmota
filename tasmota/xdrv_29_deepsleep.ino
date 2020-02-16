@@ -121,7 +121,12 @@ void DeepSleepPrepare(void)
   // In this case also add deepsleep to nextwakeup
   if (RtcSettings.nextwakeup <= (UtcTime() - DEEPSLEEP_MIN_TIME)) {
     // ensure nextwakeup is at least in the future
-    RtcSettings.nextwakeup += (((UtcTime() + DEEPSLEEP_MIN_TIME - RtcSettings.nextwakeup) / Settings.deepsleep) + 1) * Settings.deepsleep;
+    if(Settings.flag4.fast_startup){
+      //RtcSettings.nextwakeup += Settings.deepsleep;
+    }
+    else{
+      RtcSettings.nextwakeup += (((UtcTime() + DEEPSLEEP_MIN_TIME - RtcSettings.nextwakeup) / Settings.deepsleep) + 1) * Settings.deepsleep;
+    }
   }
 
   String dt = GetDT(RtcSettings.nextwakeup + LocalTime() - UtcTime());  // 2017-03-07T11:08:02
