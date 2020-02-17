@@ -117,17 +117,21 @@ void DeepSleepPrepare(void)
     RtcSettings.nextwakeup += Settings.deepsleep;
   }
 
-  // It may happen that wakeup in just <5 seconds in future
-  // In this case also add deepsleep to nextwakeup
-  if (RtcSettings.nextwakeup <= (UtcTime() - DEEPSLEEP_MIN_TIME)) {
-    // ensure nextwakeup is at least in the future
-    if(Settings.flag4.fast_startup){
-      //RtcSettings.nextwakeup += Settings.deepsleep;
-    }
-    else{
+  AddLog_P2(LOG_LEVEL_INFO, PSTR("DSL: UTC: %ld + DS_MT: %ld - RTC.NW: %ld / DST: %ld + 1 * DST: %ld" ), UtcTime(), DEEPSLEEP_MIN_TIME, RtcSettings.nextwakeup, Settings.deepsleep, Settings.deepsleep  );
+
+  // only when ntp is synced
+  if (Rtc.local_time > START_VALID_TIME) {  // 2016-01-01
+    // It may happen that wakeup in just <5 seconds in future
+    // In this case also add deepsleep to nextwakeup
+    if (RtcSettings.nextwakeup <= (UtcTime() - DEEPSLEEP_MIN_TIME)) {
+      // ensure nextwakeup is at least in the future
       RtcSettings.nextwakeup += (((UtcTime() + DEEPSLEEP_MIN_TIME - RtcSettings.nextwakeup) / Settings.deepsleep) + 1) * Settings.deepsleep;
     }
   }
+  else {
+    RtcSettings.nextwakeup = UtcTime() + Settings.deepsleep;
+  }
+  AddLog_P2(LOG_LEVEL_INFO, PSTR("DSL: UTC: %ld + DS_MT: %ld - RTC.NW: %ld / DST: %ld + 1 * DST: %ld" ), UtcTime(), DEEPSLEEP_MIN_TIME, RtcSettings.nextwakeup, Settings.deepsleep, Settings.deepsleep  );
 
   String dt = GetDT(RtcSettings.nextwakeup + LocalTime() - UtcTime());  // 2017-03-07T11:08:02
   // Limit sleeptime to DEEPSLEEP_MAX_CYCLE
