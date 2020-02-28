@@ -33,7 +33,7 @@
 const uint8_t WIFI_CONFIG_SEC = 180;       // seconds before restart
 // Drop from 20 seconds to 5 seconds since we control the reconnections, not the Arduino SDK
 const uint8_t WIFI_CHECK_SEC = 5;          // seconds
-const uint8_t WIFI_RETRY_OFFSET_SEC = 20;  // seconds
+const uint8_t WIFI_RETRY_OFFSET_SEC = 100;  // seconds
 
 #include <ESP8266WiFi.h>                   // Wifi, MQTT, Ota, WifiManager
 #if LWIP_IPV6
